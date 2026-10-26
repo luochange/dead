@@ -20,8 +20,8 @@
     <color name="danger">#DC2626</color>
 
     <color name="text">#101A33</color>
-    <color name="muted">#5A6B8C</color>
-    <color name="muted_dim">#8A99B8</color>
+    <color name="muted">#4C5D80</color>
+    <color name="muted_dim">#64748B</color>
     <color name="primary_dim">#2A5FCC</color>
 
     <!-- 背景与部件 -->
