@@ -57,8 +57,10 @@ android {
         unitTests {
             includeAndroidResources = true
             all {
-                systemProperty 'robolectric.dependency.repo.url', 'https://maven.aliyun.com/repository/central'
-                systemProperty 'robolectric.dependency.repo.id', 'aliyun'
+                // CI 用 Maven Central；国内网络可加 -ProbolectricRepoUrl=https://maven.aliyun.com/repository/central
+                systemProperty 'robolectric.dependency.repo.url',
+                        (project.findProperty('robolectricRepoUrl') ?: 'https://repo1.maven.org/maven2')
+                systemProperty 'robolectric.dependency.repo.id', 'robolectric'
                 systemProperty 'robolectric.graphicsMode', 'LEGACY'
                 maxHeapSize = '3g'
             }
