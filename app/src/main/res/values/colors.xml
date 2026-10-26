@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0B1220</color>
+    <color name="surface">#151F35</color>
+    <color name="surface2">#1B2740</color>
+    <color name="stroke">#243553</color>
+    <color name="primary">#4FD1C5</color>
+    <color name="primary_dim">#2A8F88</color>
+    <color name="onPrimary">#04231F</color>
+    <color name="amber">#F6C177</color>
+    <color name="danger">#FF6B6B</color>
+    <color name="text">#E8EEF9</color>
+    <color name="muted">#8FA0BD</color>
+    <color name="muted_dim">#5F7396</color>
+</resources>

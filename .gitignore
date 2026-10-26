@@ -1,0 +1,33 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# 签名私钥：绝不入库
+keystore/
+*.jks
+*.keystore
+
+# 构建产物
+*.apk
+*.aab
+*.apks
+
+# 本地测试产物
+tools/out/
+tools/outbox/
+tools/server.log
+tools/tls/*.key
+tools/tls/*.p12
+tools/tls/*.csr
+tools/tls/*.srl
+tools/tls/san.cnf
+
+# 系统
+.DS_Store
+Thumbs.db

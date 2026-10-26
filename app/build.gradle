@@ -1,0 +1,78 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.keepalive.deadman'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.keepalive.deadman"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    // 仓库里不含签名密钥（私钥不入库）。
+    // 想出自己的正式包，先执行：
+    //   keytool -genkeypair -keystore keystore/nightwatch.jks -alias nightwatch \
+    //     -keyalg RSA -keysize 2048 -validity 10950
+    def signingProperties = new Properties()
+    def signingFile = rootProject.file("keystore/signing.properties")
+    if (signingFile.exists()) {
+        signingFile.withInputStream { signingProperties.load(it) }
+    }
+    def keystoreFile = file("../keystore/nightwatch.jks")
+    def hasKeystore = keystoreFile.exists() && signingProperties.getProperty("storePassword") != null
+
+    signingConfigs {
+        release {
+            if (hasKeystore) {
+                storeFile keystoreFile
+                storePassword signingProperties.getProperty("storePassword")
+                keyAlias signingProperties.getProperty("keyAlias", "nightwatch")
+                keyPassword signingProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // 没有密钥时产出 unsigned 包，不阻断构建
+            if (hasKeystore) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                systemProperty 'robolectric.dependency.repo.url', 'https://maven.aliyun.com/repository/central'
+                systemProperty 'robolectric.dependency.repo.id', 'aliyun'
+                systemProperty 'robolectric.graphicsMode', 'LEGACY'
+                maxHeapSize = '3g'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.work:work-runtime:2.9.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.11.1'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.work:work-testing:2.9.0'
+}
