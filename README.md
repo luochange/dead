@@ -14,7 +14,13 @@
 
 ## 一、安装
 
-从 [Releases](https://github.com/luochange/dead/releases) 下载 `Nightwatch-1.1.0.apk`，或自行构建（见文末）。
+**手机上直接下载**（GitHub App 里 仓库 → Releases → 点开 → 下载附件即可）：
+
+```
+https://github.com/luochange/dead/releases/download/v1.1.0/Nightwatch-1.1.0.apk
+```
+
+下载后点开安装，允许"未知来源"即可。也可以自行构建（见文末）。
 
 **方式 A：数据线 + adb**
 
