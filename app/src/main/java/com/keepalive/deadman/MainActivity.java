@@ -22,8 +22,8 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.keepalive.deadman.core.Age;
 import com.keepalive.deadman.core.Guard;
-import com.keepalive.deadman.core.SmtpClient;
 import com.keepalive.deadman.core.Template;
 
 import java.text.SimpleDateFormat;
@@ -39,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private CountdownRingView ring;
     private TextView tvStatus, tvStatusSub, tvLast, tvDeadline, tvRemind, tvTestState, tvEnabledHint;
-    private MaterialButton btnCheckIn, btnTest;
+    private TextView tvAgeDays, tvAgeClock, tvAgeYmd, tvAgeHint;
+    private View ageValues;
+    private MaterialButton btnTest;
     private SwitchMaterial swEnabled;
     private View cardWarning;
     private LinearLayout historyContainer;
@@ -70,7 +72,11 @@ public class MainActivity extends AppCompatActivity {
         tvRemind = findViewById(R.id.tvRemind);
         tvTestState = findViewById(R.id.tvTestState);
         tvEnabledHint = findViewById(R.id.tvEnabledHint);
-        btnCheckIn = findViewById(R.id.btnCheckIn);
+        ageValues = findViewById(R.id.ageValues);
+        tvAgeDays = findViewById(R.id.tvAgeDays);
+        tvAgeClock = findViewById(R.id.tvAgeClock);
+        tvAgeYmd = findViewById(R.id.tvAgeYmd);
+        tvAgeHint = findViewById(R.id.tvAgeHint);
         btnTest = findViewById(R.id.btnTest);
         swEnabled = findViewById(R.id.swEnabled);
         cardWarning = findViewById(R.id.cardWarning);
@@ -79,8 +85,9 @@ public class MainActivity extends AppCompatActivity {
         ImageButton btnSettings = findViewById(R.id.btnSettings);
         btnSettings.setOnClickListener(v -> openSettings());
         findViewById(R.id.btnOpenSettings).setOnClickListener(v -> openSettings());
+        findViewById(R.id.cardAge).setOnClickListener(v -> openSettings());
         cardWarning.setOnClickListener(v -> openSettings());
-        btnCheckIn.setOnClickListener(v -> doCheckIn());
+        findViewById(R.id.btnCheckIn).setOnClickListener(v -> doCheckIn());
         btnTest.setOnClickListener(v -> sendTestMail());
 
         swEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -96,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         handler.removeCallbacks(ticker);
         ticker.run();
+        View stars = findViewById(R.id.stars);
+        if (stars != null) stars.invalidate();
     }
 
     @Override
@@ -124,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         Scheduler.scheduleAll(this);
         Notify.clearAll(this);
 
-        btnCheckIn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+        findViewById(R.id.btnCheckIn).performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
         refresh(true);
 
         long deadline = Guard.deadline(now, p.intervalHours() * Guard.HOUR);
@@ -142,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
                 openSettings();
                 return;
             }
-            // 开启即视为此刻在场，重新开始计时
             p.checkIn(System.currentTimeMillis());
             Scheduler.scheduleAll(this);
             Scheduler.ensureWatchdog(this);
@@ -177,36 +185,30 @@ public class MainActivity extends AppCompatActivity {
         btnTest.setEnabled(false);
         tvTestState.setVisibility(View.VISIBLE);
         tvTestState.setTextColor(ContextCompat.getColor(this, R.color.muted));
-        tvTestState.setText("正在连接邮件服务器…");
+        tvTestState.setText("正在为 " + p.recipientList().size() + " 位收件人逐封发送…");
 
         executor.execute(() -> {
             String error = null;
-            String partial = null;
+            Mail.Result result = null;
             try {
-                Mail.sendTest(p);
-            } catch (SmtpClient.PartialFailure e) {
-                partial = e.getMessage();
+                result = Mail.sendAll(p, true);
             } catch (Exception e) {
                 error = e.getMessage();
                 if (error == null || error.trim().isEmpty()) error = e.getClass().getSimpleName();
             }
-            final String result = error;
-            final String part = partial;
+            final String err = error;
+            final Mail.Result r = result;
             runOnUiThread(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 btnTest.setEnabled(true);
-                if (result == null && part != null) {
-                    tvTestState.setTextColor(ContextCompat.getColor(this, R.color.amber));
-                    tvTestState.setText("已发出，但部分收件人被拒：" + part);
-                    p.addHistory("error", "测试邮件部分投递：" + part);
-                } else if (result == null) {
+                if (err == null && r != null) {
                     tvTestState.setTextColor(ContextCompat.getColor(this, R.color.primary));
-                    tvTestState.setText("测试邮件已发送，请到收件箱查收");
-                    p.addHistory("sent", "已发送测试邮件");
+                    tvTestState.setText("测试邮件已发出：" + r.summary());
+                    p.addHistory("sent", "测试邮件：" + r.summary());
                 } else {
                     tvTestState.setTextColor(ContextCompat.getColor(this, R.color.danger));
-                    tvTestState.setText("发送失败：" + result);
-                    p.addHistory("error", "测试邮件失败：" + result);
+                    tvTestState.setText("发送失败：" + err);
+                    p.addHistory("error", "测试邮件失败：" + err);
                 }
                 renderHistory(p);
             });
@@ -230,6 +232,8 @@ public class MainActivity extends AppCompatActivity {
         boolean sent = sentAt > 0 && sentAt >= last;
 
         int primary = ContextCompat.getColor(this, R.color.primary);
+        int secondary = ContextCompat.getColor(this, R.color.secondary);
+        int safe = ContextCompat.getColor(this, R.color.safe);
         int amber = ContextCompat.getColor(this, R.color.amber);
         int danger = ContextCompat.getColor(this, R.color.danger);
         int muted = ContextCompat.getColor(this, R.color.muted);
@@ -247,6 +251,8 @@ public class MainActivity extends AppCompatActivity {
         tvRemind.setText(p.remindHours() == 0
                 ? "不提前提醒 · 宽限 " + p.graceMinutes() + " 分钟"
                 : "提前 " + p.remindHours() + " 小时 · 宽限 " + p.graceMinutes() + " 分钟");
+
+        renderAge(p, now);
 
         if (!enabled) {
             ring.setState(0f, "--:--:--", "未启用", muted);
@@ -267,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
             long remain = deadline - now;
             ring.setState(Guard.fraction(now, last, interval), Guard.clock(remain), "距截止", primary);
             tvStatus.setText("守护中 · 一切正常");
-            tvStatus.setTextColor(primary);
+            tvStatus.setTextColor(safe);
             tvStatusSub.setText("还剩 " + Guard.formatSpan(remain));
         } else if (now < sendAt) {
             long untilSend = sendAt - now;
@@ -290,8 +296,22 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (force) renderHistory(p);
-        else if (historyContainer.getChildCount() == 0) renderHistory(p);
+        if (force || historyContainer.getChildCount() == 0) renderHistory(p);
+    }
+
+    private void renderAge(Prefs p, long now) {
+        long birth = p.birth();
+        if (birth > 0 && birth <= now) {
+            ageValues.setVisibility(View.VISIBLE);
+            tvAgeHint.setVisibility(View.GONE);
+            tvAgeDays.setText(Age.group(Age.totalDays(birth, now)));
+            tvAgeClock.setText(Age.clock(birth, now));
+            tvAgeYmd.setText(Age.describe(birth, now));
+        } else {
+            ageValues.setVisibility(View.GONE);
+            tvAgeHint.setVisibility(View.VISIBLE);
+            tvAgeYmd.setText("");
+        }
     }
 
     private void renderHistory(Prefs p) {
@@ -305,12 +325,12 @@ public class MainActivity extends AppCompatActivity {
             empty.setText("暂无记录");
             empty.setTextColor(ContextCompat.getColor(this, R.color.muted_dim));
             empty.setTextSize(12f);
-            empty.setPadding(0, dp(14), 0, dp(14));
+            empty.setPadding(0, dp(16), 0, dp(16));
             historyContainer.addView(empty);
             return;
         }
 
-        SimpleDateFormat fmt = new SimpleDateFormat("MM-dd HH:mm", Locale.getDefault());
+        SimpleDateFormat fmt = new SimpleDateFormat("MM-dd HH:mm:ss", Locale.getDefault());
         for (Prefs.Item item : items) {
             View row = inflater.inflate(R.layout.row_history, historyContainer, false);
             TextView detail = row.findViewById(R.id.tvDetail);
@@ -320,9 +340,9 @@ public class MainActivity extends AppCompatActivity {
             detail.setText(item.detail);
             time.setText(fmt.format(new Date(item.ts)));
             int color;
-            if ("sent".equals(item.type)) color = ContextCompat.getColor(this, R.color.danger);
+            if ("sent".equals(item.type)) color = ContextCompat.getColor(this, R.color.secondary);
             else if ("error".equals(item.type)) color = ContextCompat.getColor(this, R.color.amber);
-            else color = ContextCompat.getColor(this, R.color.primary);
+            else color = ContextCompat.getColor(this, R.color.safe);
             dot.setBackgroundTintList(ColorStateList.valueOf(color));
             historyContainer.addView(row);
         }

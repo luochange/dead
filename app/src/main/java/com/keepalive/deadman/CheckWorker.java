@@ -7,11 +7,9 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.keepalive.deadman.core.Guard;
-import com.keepalive.deadman.core.SmtpClient;
 
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.util.List;
 
 import javax.net.ssl.SSLException;
 
@@ -59,25 +57,16 @@ public class CheckWorker extends Worker {
                 return Result.success();
             }
             if (p.sending() > t - 10 * Guard.MINUTE) {
-                // 另一个实例正在发送
                 return Result.retry();
             }
             p.setSending(t);
             try {
-                Mail.sendAuto(p);
-                long sentAt = System.currentTimeMillis();
-                List<String> to = p.recipients();
-                p.setSentAt(sentAt);
-                p.setLastError("");
-                p.addHistory("sent", "已发送给 " + join(to));
-                Notify.sent(c, join(to), sentAt);
-                return Result.success();
-            } catch (SmtpClient.PartialFailure e) {
+                Mail.Result r = Mail.sendAll(p, false);
                 long sentAt = System.currentTimeMillis();
                 p.setSentAt(sentAt);
-                p.setLastError(e.getMessage());
-                p.addHistory("sent", "部分投递：" + e.getMessage());
-                Notify.sent(c, join(p.recipients()), sentAt);
+                p.setLastError(r.partial() ? r.summary() : "");
+                p.addHistory("sent", r.summary());
+                Notify.sent(c, r.summary(), sentAt);
                 return Result.success();
             } catch (Exception e) {
                 String msg = friendly(e);
@@ -89,15 +78,6 @@ public class CheckWorker extends Worker {
                 p.setSending(0);
             }
         }
-    }
-
-    private static String join(List<String> list) {
-        StringBuilder sb = new StringBuilder();
-        for (String s : list) {
-            if (sb.length() > 0) sb.append("、");
-            sb.append(s);
-        }
-        return sb.toString();
     }
 
     private static String friendly(Exception e) {

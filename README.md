@@ -6,7 +6,7 @@
 每天打卡一次的安全确认 App。**如果你连续超过设定时间没有打卡，它会自动用你自己的邮箱，把你预先写好的邮件发给指定的人。**
 
 - 包名：`com.keepalive.deadman`
-- 版本：1.0.0（versionCode 1）
+- 版本：1.1.0（versionCode 2）
 - 支持：Android 7.0（API 24）及以上，targetSdk 34
 - 体积：4.6 MB，无任何第三方统计/广告 SDK
 
@@ -14,7 +14,7 @@
 
 ## 一、安装
 
-从 [Releases](https://github.com/luochange/dead/releases) 下载 `Nightwatch-1.0.0.apk`，或自行构建（见文末）。
+从 [Releases](https://github.com/luochange/dead/releases) 下载 `Nightwatch-1.1.0.apk`，或自行构建（见文末）。
 
 **方式 A：数据线 + adb**
 
@@ -62,6 +62,7 @@ adb install -r Nightwatch-1.0.0.apk
 | `{deadline}` | 应打卡截止时间 |
 | `{interval}` | 打卡周期（如"1 天"） |
 | `{now}` | 发信时间 |
+| `{to}` | 这封信的收件人邮箱（写单独内容时很有用） |
 
 ---
 
@@ -69,6 +70,7 @@ adb install -r Nightwatch-1.0.0.apk
 
 - 每天打开点一次 **立即打卡**，或直接点通知栏上的「立即打卡」按钮，计时重新开始。
 - 首页圆环显示距截止还剩多久；进入宽限期会变黄，超时变红。
+- 首页「已活」卡片会实时跳动（天 + 时分秒）；没设置出生时间时，点它去设置里填。
 - 首页下方记录最近 6 条事件（打卡 / 发送 / 失败）。
 
 **状态含义**
@@ -136,7 +138,8 @@ adb install -r Nightwatch-1.0.0.apk
 app/src/main/java/com/keepalive/deadman/
 ├── MainActivity.java        首页：倒计时、打卡、状态、记录
 ├── SettingsActivity.java    设置：SMTP、模板、周期、权限
-├── CountdownRingView.java   自绘倒计时圆环
+├── CountdownRingView.java   自绘倒计时圆环（渐变弧 + 刻度 + 光晕）
+├── StarfieldView.java       深色主题的星空背景（30fps，仅可见时刷新）
 ├── Prefs.java               配置与状态（授权码加密存取）
 ├── Crypto.java              Keystore AES-256-GCM
 ├── Scheduler.java           闹钟 + WorkManager + 重建
@@ -149,6 +152,7 @@ app/src/main/java/com/keepalive/deadman/
 └── core/                    纯 Java，可在桌面上直接测试
     ├── SmtpClient.java      SSL / STARTTLS / AUTH PLAIN·LOGIN / UTF-8 编码
     ├── Guard.java           截止、宽限、是否该发、时长格式化
+    ├── Age.java             出生时间 → 已活天数 / 年月日 / 秒级时钟
     └── Template.java        占位符替换
 ```
 
@@ -168,7 +172,7 @@ sh tools/run-tests.sh           # 8 项 SMTP 协议 / 逻辑测试（含真实 T
 ### 已通过的验证
 
 - **SMTP 协议测试（8 项）**：SSL 465 + AUTH PLAIN、STARTTLS 587 + AUTH LOGIN、多收件人、部分收件人被拒、错误密码报错、非法地址拦截、截止/宽限逻辑、中文主题与正文编码（本地起真实 TLS SMTP 服务器，用标准邮件解析器反解校验）
-- **界面测试（5 项，Robolectric）**：首页/设置页 inflate、打卡重置计时、禁用与超时状态、表单校验、圆环绘制
+- **界面测试（10 项，Robolectric）**：首页/设置页 inflate、打卡重置计时、禁用与超时状态、年龄卡片、浅色与深色两套主题、表单校验、收件人持久化与模板渲染、圆环与星空绘制
 - **Android Lint**：0 error（minSdk 24 兼容性检查通过）
 - **产物**：v2 签名校验通过、zipalign 通过
 
@@ -198,3 +202,4 @@ PP
 - 被用户"强行停止"的 App 无法接收闹钟和开机广播，直到下次手动打开。国产 ROM 的深度清理同理。
 - Gmail 对频繁自动化发信有风控，日常每天一封没有问题，但别用来做高频群发。
 - 邮件正文是纯文本，不支持 HTML 和附件。
+- 主题跟随系统深浅色设置，App 内没有单独的切换开关。

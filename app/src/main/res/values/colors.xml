@@ -1,15 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#0B1220</color>
-    <color name="surface">#151F35</color>
-    <color name="surface2">#1B2740</color>
-    <color name="stroke">#243553</color>
-    <color name="primary">#4FD1C5</color>
-    <color name="primary_dim">#2A8F88</color>
-    <color name="onPrimary">#04231F</color>
-    <color name="amber">#F6C177</color>
-    <color name="danger">#FF6B6B</color>
-    <color name="text">#E8EEF9</color>
-    <color name="muted">#8FA0BD</color>
-    <color name="muted_dim">#5F7396</color>
+    <!-- 浅色（日间）主题 -->
+    <color name="bg">#F4F7FF</color>
+    <color name="bg_mid">#EDF1FD</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_glass">#E6FFFFFF</color>
+    <color name="surface2">#EEF2FC</color>
+    <color name="stroke">#DCE4F5</color>
+    <color name="stroke_soft">#E8EEF9</color>
+
+    <color name="primary">#3B6EF6</color>
+    <color name="primary_deep">#2F5BDB</color>
+    <color name="secondary">#7C4DFF</color>
+    <color name="cyan">#0B7285</color>
+    <color name="onPrimary">#FFFFFF</color>
+
+    <color name="safe">#0E9F8E</color>
+    <color name="amber">#B45309</color>
+    <color name="danger">#DC2626</color>
+
+    <color name="text">#101A33</color>
+    <color name="muted">#5A6B8C</color>
+    <color name="muted_dim">#8A99B8</color>
+    <color name="primary_dim">#2A5FCC</color>
+
+    <!-- 背景与部件 -->
+    <color name="window_top">#F7FAFF</color>
+    <color name="window_mid">#EEF3FF</color>
+    <color name="window_bottom">#E8EFFC</color>
+    <color name="window_glow">#264F8CFF</color>
+    <color name="ring_track">#E4EAF8</color>
+    <color name="star_1">#4D3B5BA8</color>
+    <color name="star_2">#4D4F8CFF</color>
+    <color name="star_3">#4D7C4DFF</color>
+    <color name="chip_bg">#EFF3FD</color>
+    <color name="input_bg">#F7F9FF</color>
+    <color name="divider_color">#E6ECF8</color>
+    <color name="warn_bg">#1AF59E0B</color>
+    <color name="warn_stroke">#66D97706</color>
+    <color name="pill_bg">#1A3B6EF6</color>
+    <color name="pill_stroke">#553B6EF6</color>
+    <color name="btn_start">#4F8CFF</color>
+    <color name="btn_mid">#6D7BF8</color>
+    <color name="btn_end">#8B5CF6</color>
+    <color name="switch_track">#C9D6EE</color>
+    <color name="glow_start">#334F8CFF</color>
+    <color name="glow_end">#004F8CFF</color>
 </resources>

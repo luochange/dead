@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="20dp"
-        android:paddingTop="26dp"
+        android:paddingTop="28dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="32dp">
+        android:paddingBottom="36dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,24 +29,26 @@
                 android:gravity="center"
                 android:text="←"
                 android:textColor="@color/text"
-                android:textSize="24sp" />
+                android:textSize="22sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
+                android:letterSpacing="0.1"
                 android:text="设置"
                 android:textColor="@color/text"
                 android:textSize="21sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- 发件邮箱 -->
         <TextView
             style="@style/SectionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="发件邮箱（SMTP）" />
+            android:layout_marginTop="22dp"
+            android:text="发件邮箱 / SMTP" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -56,7 +58,7 @@
             android:paddingStart="14dp"
             android:paddingTop="16dp"
             android:paddingEnd="14dp"
-            android:paddingBottom="8dp">
+            android:paddingBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -100,10 +102,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="快捷填充："
-                android:textColor="@color/muted"
-                android:textSize="11sp" />
+                android:layout_marginTop="12dp"
+                android:letterSpacing="0.08"
+                android:text="快捷填充"
+                android:textColor="@color/muted_dim"
+                android:textSize="10sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -166,7 +169,7 @@
                 android:id="@+id/rgSecurity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
                 <RadioButton
@@ -204,7 +207,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="SSL 通常用 465 端口，STARTTLS 通常用 587；点上面的快捷填充会自动设好。"
+                android:text="SSL 通常 465，STARTTLS 通常 587；快捷填充会自动设好。"
                 android:textColor="@color/muted_dim"
                 android:textSize="11sp" />
 
@@ -243,17 +246,16 @@
                 android:id="@+id/tvPassHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="4dp"
-                android:text="Gmail / QQ / 163 需要在邮箱设置里开启 SMTP 并生成「授权码」，填这里。"
-                android:textColor="@color/muted"
+                android:layout_marginTop="8dp"
+                android:text="Gmail / QQ / 163 需要开启 SMTP 并生成「授权码」，填这里。"
+                android:textColor="@color/muted_dim"
                 android:textSize="11sp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Til"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="8dp"
                 android:hint="发件人显示名（可选）">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -265,12 +267,69 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
+        <!-- 收件人 -->
         <TextView
             style="@style/SectionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="22dp"
             android:text="收件人" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:id="@+id/recipientContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/tvRecipientEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:text="还没有收件人。至少添加一位，失联邮件才有地方发。"
+                android:textColor="@color/muted_dim"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddRecipient"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:text="+  添加收件人"
+                android:textColor="@color/primary"
+                android:textSize="13sp"
+                app:cornerRadius="22dp"
+                app:strokeColor="@color/stroke" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:lineSpacingExtra="2dp"
+                android:text="点击某位收件人，可以给他单独写一封信；留空则使用下面的默认内容。发送时一人一封，彼此不可见。"
+                android:textColor="@color/muted_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 出生时间 -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="已经活了多久" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -280,30 +339,127 @@
             android:paddingStart="14dp"
             android:paddingTop="14dp"
             android:paddingEnd="14dp"
-            android:paddingBottom="10dp">
+            android:paddingBottom="12dp">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Til"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="收件邮箱（多个用逗号或换行分隔）">
+                android:hint="出生时间（yyyy-MM-dd HH:mm:ss）">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etTo"
+                    android:id="@+id/etBirth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:inputType="textMultiLine|textEmailAddress"
-                    android:minLines="2"
+                    android:fontFamily="monospace"
+                    android:inputType="datetime"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickBirth"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="42dp"
+                    android:layout_weight="1"
+                    android:text="选择日期时间"
+                    android:textColor="@color/text"
+                    android:textSize="12sp"
+                    app:cornerRadius="21dp"
+                    app:strokeColor="@color/stroke" />
+
+                <Space android:layout_width="8dp" android:layout_height="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearBirth"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:text="清除"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="精确到秒。选完日期和时间后，秒可以直接在输入框里改。"
+                android:textColor="@color/muted_dim"
+                android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- 默认邮件内容 -->
         <TextView
             style="@style/SectionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="22dp"
+            android:text="默认邮件内容" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:paddingStart="14dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="12dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Til"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="默认主题">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSubject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Til"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:hint="默认正文">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="8"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="2dp"
+                android:text="占位符：{name} · {last_checkin} · {deadline} · {interval} · {now} · {to}（收件人邮箱）"
+                android:textColor="@color/muted_dim"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- 打卡节奏 -->
+        <TextView
+            style="@style/SectionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
             android:text="打卡节奏" />
 
         <LinearLayout
@@ -314,7 +470,7 @@
             android:paddingStart="14dp"
             android:paddingTop="14dp"
             android:paddingEnd="14dp"
-            android:paddingBottom="10dp">
+            android:paddingBottom="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -359,7 +515,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="宽限期（分钟，超时后再等多久发信）">
+                android:hint="宽限期（分钟）">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etGrace"
@@ -368,81 +524,14 @@
                     android:inputType="number"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="4dp"
-                android:text="例：周期 24 小时 + 宽限 30 分钟，则最后一次打卡 24.5 小时后仍未打卡才会发信。"
-                android:textColor="@color/muted"
-                android:textSize="11sp" />
         </LinearLayout>
 
+        <!-- 后台可靠性 -->
         <TextView
             style="@style/SectionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="邮件内容" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
-            android:orientation="vertical"
-            android:paddingStart="14dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="10dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Til"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="邮件主题">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSubject"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Til"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="邮件正文">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etBody"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:inputType="textMultiLine"
-                    android:minLines="8"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp"
-                android:lineSpacingExtra="2dp"
-                android:text="可用占位符：{name} 显示名 · {last_checkin} 上次打卡时间 · {deadline} 截止时间 · {interval} 打卡周期 · {now} 发信时间"
-                android:textColor="@color/muted"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <TextView
-            style="@style/SectionTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
+            android:layout_marginTop="22dp"
             android:text="后台可靠性" />
 
         <LinearLayout
@@ -450,10 +539,10 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="6dp"
+            android:paddingStart="18dp"
+            android:paddingTop="4dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="6dp">
+            android:paddingBottom="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -481,7 +570,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="@color/muted"
+                        android:textColor="@color/muted_dim"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -526,7 +615,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="@color/muted"
+                        android:textColor="@color/muted_dim"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -571,7 +660,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="@color/muted"
+                        android:textColor="@color/muted_dim"
                         android:textSize="11sp" />
                 </LinearLayout>
 
@@ -586,17 +675,27 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <FrameLayout
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:layout_marginTop="22dp"
-            android:text="保存设置"
-            android:textColor="@color/onPrimary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="27dp" />
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_button_primary"
+            android:clickable="true"
+            android:clipToOutline="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:letterSpacing="0.06"
+                android:text="保存设置"
+                android:textColor="@color/onPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTestMail"
@@ -606,7 +705,7 @@
             android:layout_marginTop="10dp"
             android:text="保存并发送测试邮件"
             android:textColor="@color/text"
-            android:textSize="14sp"
+            android:textSize="13sp"
             app:cornerRadius="25dp"
             app:strokeColor="@color/stroke" />
 
@@ -614,9 +713,9 @@
             android:id="@+id/tvTestResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:gravity="center"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/muted"
             android:textSize="12sp" />
     </LinearLayout>

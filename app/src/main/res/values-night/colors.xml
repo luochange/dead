@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色（夜间）主题：Cosmic 深空 -->
+    <color name="bg">#05070F</color>
+    <color name="bg_mid">#0A1024</color>
+    <color name="surface">#0E1530</color>
+    <color name="surface_glass">#CC0E1530</color>
+    <color name="surface2">#16203F</color>
+    <color name="stroke">#1F2C55</color>
+    <color name="stroke_soft">#16203F</color>
+
+    <color name="primary">#4F8CFF</color>
+    <color name="primary_deep">#3B82F6</color>
+    <color name="secondary">#8B5CF6</color>
+    <color name="cyan">#22D3EE</color>
+    <color name="onPrimary">#FFFFFF</color>
+
+    <color name="safe">#2DD4BF</color>
+    <color name="amber">#F59E0B</color>
+    <color name="danger">#F87171</color>
+
+    <color name="text">#E9EEFF</color>
+    <color name="muted">#93A2C9</color>
+    <color name="muted_dim">#5F6F96</color>
+    <color name="primary_dim">#2A5FCC</color>
+
+    <color name="window_top">#0B1230</color>
+    <color name="window_mid">#070B18</color>
+    <color name="window_bottom">#04060E</color>
+    <color name="window_glow">#332B5BA8</color>
+    <color name="ring_track">#141C38</color>
+    <color name="star_1">#FFE9EEFF</color>
+    <color name="star_2">#FF9FC4FF</color>
+    <color name="star_3">#FFB79CFF</color>
+    <color name="chip_bg">#141C38</color>
+    <color name="input_bg">#80070C1A</color>
+    <color name="divider_color">#1A243F</color>
+    <color name="warn_bg">#1AF59E0B</color>
+    <color name="warn_stroke">#66F59E0B</color>
+    <color name="pill_bg">#1A4F8CFF</color>
+    <color name="pill_stroke">#554F8CFF</color>
+    <color name="btn_start">#4F8CFF</color>
+    <color name="btn_mid">#6D7BF8</color>
+    <color name="btn_end">#8B5CF6</color>
+    <color name="switch_track">#3A4C6B</color>
+    <color name="glow_start">#334F8CFF</color>
+    <color name="glow_end">#004F8CFF</color>
+</resources>

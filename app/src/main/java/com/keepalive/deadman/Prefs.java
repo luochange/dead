@@ -2,7 +2,9 @@ package com.keepalive.deadman;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ public final class Prefs {
 
     private static final String FILE = "nightwatch";
     private static final int HISTORY_MAX = 20;
+    private static final char F = '\u001F';
 
     private static Prefs instance;
 
@@ -28,6 +31,39 @@ public final class Prefs {
     private Crypto crypto = new Crypto();
     private String cachedPassword;
     private boolean passwordLoaded;
+
+    /** 一位收件人，可单独覆写主题与正文（留空则用默认模板）。 */
+    public static final class Recipient {
+        public String email = "";
+        public String subject = "";
+        public String body = "";
+
+        public Recipient() {}
+
+        public Recipient(String email) {
+            this.email = email;
+        }
+
+        public Recipient(String email, String subject, String body) {
+            this.email = email;
+            this.subject = subject == null ? "" : subject;
+            this.body = body == null ? "" : body;
+        }
+
+        public boolean hasCustom() {
+            return !subject.trim().isEmpty() || !body.trim().isEmpty();
+        }
+    }
+
+    public static synchronized Prefs get(Context context) {
+        if (instance == null) instance = new Prefs(context.getApplicationContext());
+        return instance;
+    }
+
+    private Prefs(Context context) {
+        sp = context.getSharedPreferences(FILE, Context.MODE_PRIVATE);
+        migrate();
+    }
 
     /** 测试用：替换加密实现（Robolectric 里没有 AndroidKeyStore）。 */
     void setCryptoForTest(Crypto c) {
@@ -42,15 +78,6 @@ public final class Prefs {
         cachedPassword = null;
     }
 
-    public static synchronized Prefs get(Context context) {
-        if (instance == null) instance = new Prefs(context.getApplicationContext());
-        return instance;
-    }
-
-    private Prefs(Context context) {
-        sp = context.getSharedPreferences(FILE, Context.MODE_PRIVATE);
-    }
-
     // ------------------------------------------------------------------ 配置读取
 
     public String host() { return sp.getString("host", ""); }
@@ -62,10 +89,6 @@ public final class Prefs {
     public String user() { return sp.getString("user", ""); }
 
     public String fromName() { return sp.getString("from_name", ""); }
-
-    public String recipientsRaw() { return sp.getString("to", ""); }
-
-    public List<String> recipients() { return splitAddresses(recipientsRaw()); }
 
     public String password() {
         if (!passwordLoaded) {
@@ -97,12 +120,54 @@ public final class Prefs {
 
     public boolean enabled() { return sp.getBoolean("enabled", false); }
 
+    /** 出生时间（毫秒），0 表示未设置。 */
+    public long birth() { return sp.getLong("birth_ms", 0); }
+
+    // ------------------------------------------------------------------ 收件人
+
+    public List<Recipient> recipientList() {
+        List<Recipient> out = new ArrayList<>();
+        String raw = sp.getString("recipients", "");
+        if (raw == null || raw.isEmpty()) return out;
+        for (String line : raw.split("\n")) {
+            if (line.trim().isEmpty()) continue;
+            String[] parts = line.split(String.valueOf(F), -1);
+            if (parts.length < 1) continue;
+            Recipient r = new Recipient();
+            r.email = parts[0].trim();
+            if (r.email.isEmpty()) continue;
+            if (parts.length > 1) r.subject = decode(parts[1]);
+            if (parts.length > 2) r.body = decode(parts[2]);
+            out.add(r);
+        }
+        return out;
+    }
+
+    public List<String> recipients() {
+        List<String> out = new ArrayList<>();
+        for (Recipient r : recipientList()) out.add(r.email);
+        return out;
+    }
+
+    public String recipientsRaw() {
+        StringBuilder sb = new StringBuilder();
+        for (Recipient r : recipientList()) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(r.email);
+        }
+        return sb.toString();
+    }
+
     public boolean isConfigured() {
-        return !host().trim().isEmpty()
-                && port() > 0
-                && com.keepalive.deadman.core.SmtpClient.isEmail(user())
-                && !password().isEmpty()
-                && !recipients().isEmpty();
+        List<Recipient> list = recipientList();
+        if (host().trim().isEmpty() || port() <= 0) return false;
+        if (!com.keepalive.deadman.core.SmtpClient.isEmail(user())) return false;
+        if (password().isEmpty()) return false;
+        if (list.isEmpty()) return false;
+        for (Recipient r : list) {
+            if (!com.keepalive.deadman.core.SmtpClient.isEmail(r.email)) return false;
+        }
+        return true;
     }
 
     // ------------------------------------------------------------------ 状态
@@ -176,9 +241,7 @@ public final class Prefs {
         if (existing != null && !existing.isEmpty()) {
             String[] old = existing.split("\n");
             int keep = Math.min(old.length, HISTORY_MAX - 1);
-            for (int i = 0; i < keep; i++) {
-                sb.append('\n').append(old[i]);
-            }
+            for (int i = 0; i < keep; i++) sb.append('\n').append(old[i]);
         }
         sp.edit().putString("history", sb.toString()).apply();
     }
@@ -191,7 +254,6 @@ public final class Prefs {
 
     public final class Edit {
         private final SharedPreferences.Editor ed = sp.edit();
-        private boolean passwordChanged;
 
         public Edit host(String v) { ed.putString("host", v == null ? "" : v.trim()); return this; }
 
@@ -203,14 +265,11 @@ public final class Prefs {
 
         public Edit fromName(String v) { ed.putString("from_name", v == null ? "" : v.trim()); return this; }
 
-        public Edit recipientsRaw(String v) { ed.putString("to", v == null ? "" : v.trim()); return this; }
-
         public Edit password(String v) {
             try {
                 ed.putString("pass", crypto.encrypt(v == null ? "" : v));
                 cachedPassword = v == null ? "" : v;
                 passwordLoaded = true;
-                passwordChanged = true;
             } catch (Exception ignored) {
             }
             return this;
@@ -226,12 +285,44 @@ public final class Prefs {
 
         public Edit body(String v) { ed.putString("body", v); return this; }
 
-        public void commit() { ed.apply(); }
+        public Edit birth(long ms) { ed.putLong("birth_ms", ms); return this; }
 
-        public boolean passwordChanged() { return passwordChanged; }
+        public Edit recipients(List<Recipient> list) {
+            StringBuilder sb = new StringBuilder();
+            if (list != null) {
+                for (Recipient r : list) {
+                    if (r == null || r.email == null || r.email.trim().isEmpty()) continue;
+                    if (sb.length() > 0) sb.append('\n');
+                    sb.append(r.email.trim()).append(F)
+                      .append(encode(r.subject)).append(F)
+                      .append(encode(r.body));
+                }
+            }
+            ed.putString("recipients", sb.toString());
+            return this;
+        }
+
+        /** 兼容旧调用：只给地址，内容走默认模板。 */
+        public Edit recipientsRaw(String raw) {
+            List<Recipient> list = new ArrayList<>();
+            for (String addr : splitAddresses(raw)) list.add(new Recipient(addr));
+            return recipients(list);
+        }
+
+        public void commit() { ed.apply(); }
     }
 
-    // ------------------------------------------------------------------ 工具
+    // ------------------------------------------------------------------ 迁移与工具
+
+    /** 老版本只存了一串地址，首次启动时转成新的收件人结构。 */
+    private void migrate() {
+        if (sp.contains("recipients")) return;
+        String legacy = sp.getString("to", "");
+        if (legacy == null || legacy.trim().isEmpty()) return;
+        List<Recipient> list = new ArrayList<>();
+        for (String addr : splitAddresses(legacy)) list.add(new Recipient(addr));
+        edit().recipients(list).commit();
+    }
 
     public static List<String> splitAddresses(String raw) {
         List<String> out = new ArrayList<>();
@@ -242,6 +333,20 @@ public final class Prefs {
             if (!v.isEmpty() && !out.contains(v)) out.add(v);
         }
         return out;
+    }
+
+    private static String encode(String s) {
+        if (s == null) s = "";
+        return Base64.encodeToString(s.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+    }
+
+    private static String decode(String s) {
+        if (s == null || s.isEmpty()) return "";
+        try {
+            return new String(Base64.decode(s, Base64.NO_WRAP), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private static int clamp(int v, int min, int max) {
