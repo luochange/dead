@@ -1,5 +1,8 @@
 # 守夜人 · Nightwatch
 
+[![Build APK](https://github.com/luochange/dead/actions/workflows/build.yml/badge.svg)](https://github.com/luochange/dead/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-4FD1C5.svg)](LICENSE)
+
 每天打卡一次的安全确认 App。**如果你连续超过设定时间没有打卡，它会自动用你自己的邮箱，把你预先写好的邮件发给指定的人。**
 
 - 包名：`com.keepalive.deadman`
@@ -11,7 +14,7 @@
 
 ## 一、安装
 
-APK 在 `/workspace/Nightwatch-1.0.0.apk`。
+从 [Releases](https://github.com/luochange/dead/releases) 下载 `Nightwatch-1.0.0.apk`，或自行构建（见文末）。
 
 **方式 A：数据线 + adb**
 
@@ -152,8 +155,9 @@ app/src/main/java/com/keepalive/deadman/
 ### 构建
 
 ```bash
+git clone https://github.com/luochange/dead.git
+cd dead
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-cd /workspace/deadman
 sh gradlew assembleRelease      # 产物：app/build/outputs/apk/release/app-release.apk
 sh gradlew testDebugUnitTest    # 5 项 Robolectric UI 测试
 sh tools/run-tests.sh           # 8 项 SMTP 协议 / 逻辑测试（含真实 TLS 握手）
